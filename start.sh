@@ -168,9 +168,11 @@ if [ "$DIR_TRUSTED" = "true" ]; then
   tmux new-session -d -s "$SESSION_NAME" -c "$(pwd)" "claude --dangerously-skip-permissions --chrome"
 
   sleep 3
-  tmux send-keys -t "$SESSION_NAME" "/rename Arthur" Enter
-  sleep 1
   tmux send-keys -t "$SESSION_NAME" "/remote-control" Enter
+  sleep 1
+  tmux send-keys -t "$SESSION_NAME" Enter
+  sleep 2
+  tmux send-keys -t "$SESSION_NAME" "/rename Arthur" Enter
   sleep 1
   tmux send-keys -t "$SESSION_NAME" Enter
 
