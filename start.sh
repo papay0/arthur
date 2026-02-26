@@ -28,6 +28,13 @@ printf "    |            Claude Code                |\n"
 printf "    +---------------------------------------+\n"
 printf "${RESET}\n"
 
+# ── Guard: don't nest Claude Code ───────────────────────────
+if [ -n "${CLAUDECODE:-}" ]; then
+  printf "  ${WARN} You're already inside Claude Code.\n"
+  printf "    Run ${BOLD}./start.sh${RESET} from a regular terminal to start Arthur.\n\n"
+  exit 0
+fi
+
 # ── Preflight checks ─────────────────────────────────────────
 printf "${BOLD}  Preflight ${RESET}${DIM}─── Checking requirements${RESET}\n\n"
 
@@ -62,8 +69,12 @@ printf "    ${CHECK} Homebrew\n"
 printf "    ${CHECK} Claude Code\n"
 printf "\n"
 
+# ── Ensure directories exist ─────────────────────────────────
+mkdir -p schedules memory/daily
+chmod +x run-scheduled.sh 2>/dev/null || true
+
 # ── Install Apple CLI tools ───────────────────────────────────
-printf "${BOLD}  Tools ${RESET}${DIM}─── Apple CLI tools${RESET}\n\n"
+printf "${BOLD}  Tools ${RESET}${DIM}─── CLI tools${RESET}\n\n"
 
 # memo (Apple Notes)
 if command -v memo &>/dev/null; then
@@ -92,6 +103,16 @@ else
   printf "    ${ARROW} Installing imsg ${DIM}(iMessage)${RESET}...\n"
   brew install steipete/tap/imsg
   printf "    ${CHECK} imsg ${DIM}(iMessage)${RESET} — installed\n"
+  INSTALLED_SOMETHING=true
+fi
+
+# gog (Google Calendar + Gmail)
+if command -v gog &>/dev/null; then
+  printf "    ${CHECK} gog ${DIM}(Google Calendar + Gmail)${RESET}\n"
+else
+  printf "    ${ARROW} Installing gog ${DIM}(Google Calendar + Gmail)${RESET}...\n"
+  brew install steipete/tap/gogcli
+  printf "    ${CHECK} gog ${DIM}(Google Calendar + Gmail)${RESET} — installed\n"
   INSTALLED_SOMETHING=true
 fi
 
@@ -147,6 +168,8 @@ if [ "$DIR_TRUSTED" = "true" ]; then
   tmux new-session -d -s "$SESSION_NAME" -c "$(pwd)" "claude --dangerously-skip-permissions --chrome"
 
   sleep 3
+  tmux send-keys -t "$SESSION_NAME" "/rename Arthur" Enter
+  sleep 1
   tmux send-keys -t "$SESSION_NAME" "/remote-control" Enter
   sleep 1
   tmux send-keys -t "$SESSION_NAME" Enter
