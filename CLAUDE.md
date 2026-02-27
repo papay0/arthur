@@ -15,6 +15,7 @@ Read `SOUL.md` for personality and voice guidelines. Follow them in every intera
 - **Run commands** — built-in Bash tool
 - **Memory** — structured topic files in `memory/me/` (personal, gitignored) and `memory/project/` (shared, committed). See `.claude/skills/memory-management/`
 - **Scheduling** — automated tasks via crontab. See `.claude/skills/scheduling/`
+- **Self-update** — pull latest and restart. See `.claude/skills/self-update/`
 
 ## Rules
 
@@ -27,5 +28,4 @@ Read `SOUL.md` for personality and voice guidelines. Follow them in every intera
 - For "remind me at X to do Y" — use the local queue system (see `.claude/skills/scheduling/`): append to `~/arthur/reminders/queue.jsonl` and set a cron entry using `run-scheduled.sh reminder-fire`. This delivers the reminder back into this conversation.
 - For managing existing Reminders.app items (view, edit, delete) — use `remindctl`
 - For iMessage, use `imsg` — requires Full Disk Access on your terminal
-- For Google Calendar/Gmail, check `gog auth list` first — skip if not configured
-- For Google setup, guide interactively using `.claude/skills/google-setup/`
+- For Google Calendar/Gmail, check `gog auth list` first — if not configured, guide setup using `.claude/skills/google-setup/`

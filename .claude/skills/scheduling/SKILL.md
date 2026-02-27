@@ -159,3 +159,37 @@ After delivering, optionally remove the cron entry if it was a one-shot reminder
 crontab -l | grep -v "reminder-fire" | crontab -
 ```
 Only do this if all reminder-fire cron entries have been delivered. If there are future reminders still pending, keep them.
+
+---
+
+## Debug
+
+### Check what reminders are queued
+```bash
+cat ~/arthur/reminders/queue.jsonl 2>/dev/null | python3 -c "
+import sys, json
+for line in sys.stdin:
+    line = line.strip()
+    if line:
+        r = json.loads(line)
+        status = '✓ delivered' if r.get('delivered') else '⏰ pending'
+        print(f\"{status}  {r['scheduled_at']}  {r['content']}\")
+" || echo "No reminders queued"
+```
+
+### Check active schedules
+```bash
+echo "=== Crontab ===" && crontab -l 2>/dev/null | grep run-scheduled || echo "(none)"
+echo ""
+echo "=== Schedule files ===" && ls ~/arthur/schedules/ 2>/dev/null || echo "(none)"
+```
+
+### Test a schedule manually
+```bash
+~/arthur/run-scheduled.sh <name>
+```
+
+### Check if cron is running
+```bash
+pgrep -x cron || launchctl list | grep com.vix.cron
+```
