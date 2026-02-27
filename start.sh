@@ -54,37 +54,16 @@ elif [ "$IS_MACOS" = "true" ]; then
   exit 1
 fi
 
-# Helper: load nvm if present, then install Claude Code
-_install_claude() {
-  # Load nvm if available (may have just been installed)
-  export NVM_DIR="$HOME/.nvm"
-  # shellcheck disable=SC1091
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+if ! command -v claude &>/dev/null && [ ! -x "$HOME/.local/bin/claude" ]; then
   printf "    ${ARROW} Installing Claude Code...\n"
-  npm i -g @anthropic-ai/claude-code
+  curl -fsSL https://claude.ai/install.sh | bash
+  # Native installer puts claude in ~/.local/bin — add to PATH for this session
+  export PATH="$HOME/.local/bin:$PATH"
   printf "    ${CHECK} Claude Code — installed\n"
   INSTALLED_SOMETHING=true
-}
-
-if ! command -v claude &>/dev/null; then
-  if command -v npm &>/dev/null; then
-    _install_claude
-  elif [ "$IS_MACOS" = "false" ]; then
-    # Linux: install Node.js via nvm (no sudo needed)
-    printf "    ${ARROW} Installing Node.js via nvm...\n"
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    # shellcheck disable=SC1091
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm install --lts --no-progress
-    printf "    ${CHECK} Node.js — installed\n"
-    _install_claude
-  else
-    printf "    ${WARN} Claude Code not found. Install it first:\n"
-    printf "    ${DIM}npm i -g @anthropic-ai/claude-code${RESET}\n\n"
-    exit 1
-  fi
 else
+  # Ensure ~/.local/bin is in PATH (native install location)
+  export PATH="$HOME/.local/bin:$PATH"
   printf "    ${CHECK} Claude Code\n"
 fi
 
