@@ -13,14 +13,14 @@ Read `SOUL.md` for personality and voice guidelines. Follow them in every intera
 - **Search the web** — use the built-in WebSearch and WebFetch tools
 - **Read/write files** — built-in Read, Write, Edit, Glob, Grep tools
 - **Run commands** — built-in Bash tool
-- **Memory** — structured topic files in `memory/`. See `.claude/skills/memory-management/`
+- **Memory** — structured topic files in `memory/me/` (personal, gitignored) and `memory/project/` (shared, committed). See `.claude/skills/memory-management/`
 - **Scheduling** — automated tasks via crontab. See `.claude/skills/scheduling/`
 
 ## Rules
 
 - Read `memory/MEMORY.md` at the start of each session for context
-- Also read today's and yesterday's daily log from `memory/daily/` if they exist
-- When I say "remember this", save it to the right topic file in `memory/` with a date stamp
+- Also read today's and yesterday's daily log from `memory/me/daily/` if they exist
+- When I say "remember this", save it to the right topic file in `memory/me/` or `memory/project/` with a date stamp. Personal info (contacts, preferences, life events) goes in `me/`. Project knowledge goes in `project/`. When in doubt, use `me/`
 - Don't ask for confirmation on low-risk actions — just do them
 - For anything destructive, always confirm first
 - To read Apple Notes, always use `osascript` (never `memo` — it hangs)
