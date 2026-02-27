@@ -35,15 +35,20 @@ if [ -n "${CLAUDECODE:-}" ]; then
   exit 0
 fi
 
+# ── Platform detection ────────────────────────────────────────
+IS_MACOS=false
+if [ "$(uname)" = "Darwin" ]; then
+  IS_MACOS=true
+fi
+
 # ── Preflight checks ─────────────────────────────────────────
 printf "${BOLD}  Preflight ${RESET}${DIM}─── Checking requirements${RESET}\n\n"
 
-if [ "$(uname)" != "Darwin" ]; then
-  printf "    ${WARN} macOS required. Arthur uses Apple Notes, Reminders, and iMessage.\n\n"
-  exit 1
-fi
-
-if ! command -v brew &>/dev/null; then
+# Homebrew — required on macOS, optional on Linux
+HAS_BREW=false
+if command -v brew &>/dev/null; then
+  HAS_BREW=true
+elif [ "$IS_MACOS" = "true" ]; then
   printf "    ${WARN} Homebrew not found. Install it first:\n"
   printf "    ${DIM}https://brew.sh${RESET}\n\n"
   exit 1
@@ -55,17 +60,29 @@ if ! command -v claude &>/dev/null; then
   exit 1
 fi
 
+# tmux — try brew, then apt-get
 if ! command -v tmux &>/dev/null; then
   printf "    ${ARROW} Installing tmux...\n"
-  brew install tmux
+  if [ "$HAS_BREW" = "true" ]; then
+    brew install tmux
+  elif command -v apt-get &>/dev/null; then
+    sudo apt-get install -y tmux
+  else
+    printf "    ${WARN} tmux not found. Install it manually: https://github.com/tmux/tmux\n\n"
+    exit 1
+  fi
   printf "    ${CHECK} tmux — installed\n"
   INSTALLED_SOMETHING=true
 else
   printf "    ${CHECK} tmux\n"
 fi
 
-printf "    ${CHECK} macOS\n"
-printf "    ${CHECK} Homebrew\n"
+if [ "$IS_MACOS" = "true" ]; then
+  printf "    ${CHECK} macOS\n"
+else
+  printf "    ${CHECK} Linux\n"
+fi
+[ "$HAS_BREW" = "true" ] && printf "    ${CHECK} Homebrew\n"
 printf "    ${CHECK} Claude Code\n"
 printf "\n"
 
@@ -73,53 +90,61 @@ printf "\n"
 mkdir -p schedules memory/daily
 chmod +x run-scheduled.sh 2>/dev/null || true
 
-# ── Install Apple CLI tools ───────────────────────────────────
+# ── Install CLI tools ─────────────────────────────────────────
 printf "${BOLD}  Tools ${RESET}${DIM}─── CLI tools${RESET}\n\n"
 
-# memo (Apple Notes)
-if command -v memo &>/dev/null; then
-  printf "    ${CHECK} memo ${DIM}(Apple Notes)${RESET}\n"
+if [ "$IS_MACOS" = "true" ]; then
+  # memo (Apple Notes)
+  if command -v memo &>/dev/null; then
+    printf "    ${CHECK} memo ${DIM}(Apple Notes)${RESET}\n"
+  else
+    printf "    ${ARROW} Installing memo ${DIM}(Apple Notes)${RESET}...\n"
+    brew tap antoniorodr/memo && brew install antoniorodr/memo/memo
+    printf "    ${CHECK} memo ${DIM}(Apple Notes)${RESET} — installed\n"
+    INSTALLED_SOMETHING=true
+  fi
+
+  # remindctl (Apple Reminders)
+  if command -v remindctl &>/dev/null; then
+    printf "    ${CHECK} remindctl ${DIM}(Apple Reminders)${RESET}\n"
+  else
+    printf "    ${ARROW} Installing remindctl ${DIM}(Apple Reminders)${RESET}...\n"
+    brew install steipete/tap/remindctl
+    printf "    ${CHECK} remindctl ${DIM}(Apple Reminders)${RESET} — installed\n"
+    INSTALLED_SOMETHING=true
+  fi
+
+  # imsg (iMessage)
+  if command -v imsg &>/dev/null; then
+    printf "    ${CHECK} imsg ${DIM}(iMessage)${RESET}\n"
+  else
+    printf "    ${ARROW} Installing imsg ${DIM}(iMessage)${RESET}...\n"
+    brew install steipete/tap/imsg
+    printf "    ${CHECK} imsg ${DIM}(iMessage)${RESET} — installed\n"
+    INSTALLED_SOMETHING=true
+  fi
 else
-  printf "    ${ARROW} Installing memo ${DIM}(Apple Notes)${RESET}...\n"
-  brew tap antoniorodr/memo && brew install antoniorodr/memo/memo
-  printf "    ${CHECK} memo ${DIM}(Apple Notes)${RESET} — installed\n"
-  INSTALLED_SOMETHING=true
+  printf "    ${DIM}  (Apple Notes, Reminders, iMessage — macOS only, skipping)${RESET}\n"
 fi
 
-# remindctl (Apple Reminders)
-if command -v remindctl &>/dev/null; then
-  printf "    ${CHECK} remindctl ${DIM}(Apple Reminders)${RESET}\n"
+# gog (Google Calendar + Gmail) — works on macOS and Linux via Homebrew
+if [ "$HAS_BREW" = "true" ]; then
+  if command -v gog &>/dev/null; then
+    printf "    ${CHECK} gog ${DIM}(Google Calendar + Gmail)${RESET}\n"
+  else
+    printf "    ${ARROW} Installing gog ${DIM}(Google Calendar + Gmail)${RESET}...\n"
+    brew install steipete/tap/gogcli
+    printf "    ${CHECK} gog ${DIM}(Google Calendar + Gmail)${RESET} — installed\n"
+    INSTALLED_SOMETHING=true
+  fi
 else
-  printf "    ${ARROW} Installing remindctl ${DIM}(Apple Reminders)${RESET}...\n"
-  brew install steipete/tap/remindctl
-  printf "    ${CHECK} remindctl ${DIM}(Apple Reminders)${RESET} — installed\n"
-  INSTALLED_SOMETHING=true
-fi
-
-# imsg (iMessage)
-if command -v imsg &>/dev/null; then
-  printf "    ${CHECK} imsg ${DIM}(iMessage)${RESET}\n"
-else
-  printf "    ${ARROW} Installing imsg ${DIM}(iMessage)${RESET}...\n"
-  brew install steipete/tap/imsg
-  printf "    ${CHECK} imsg ${DIM}(iMessage)${RESET} — installed\n"
-  INSTALLED_SOMETHING=true
-fi
-
-# gog (Google Calendar + Gmail)
-if command -v gog &>/dev/null; then
-  printf "    ${CHECK} gog ${DIM}(Google Calendar + Gmail)${RESET}\n"
-else
-  printf "    ${ARROW} Installing gog ${DIM}(Google Calendar + Gmail)${RESET}...\n"
-  brew install steipete/tap/gogcli
-  printf "    ${CHECK} gog ${DIM}(Google Calendar + Gmail)${RESET} — installed\n"
-  INSTALLED_SOMETHING=true
+  printf "    ${DIM}  gog (Google Calendar + Gmail) — install Homebrew to enable${RESET}\n"
 fi
 
 printf "\n"
 
-# ── Permissions (only on fresh install) ───────────────────────
-if [ "$INSTALLED_SOMETHING" = true ]; then
+# ── Permissions (only on macOS fresh install) ─────────────────
+if [ "$IS_MACOS" = "true" ] && [ "$INSTALLED_SOMETHING" = true ]; then
   printf "${BOLD}  Permissions ${RESET}${DIM}─── macOS may prompt you${RESET}\n\n"
   printf "    ${WARN} iMessage requires ${BOLD}Full Disk Access${RESET} for your terminal:\n"
   printf "    ${DIM}  System Settings > Privacy & Security > Full Disk Access${RESET}\n"
@@ -150,7 +175,7 @@ PYEOF
 fi
 
 # ── Caffeinate (prevent Mac sleep) ────────────────────────────
-if ! pgrep -x caffeinate > /dev/null; then
+if [ "$IS_MACOS" = "true" ] && ! pgrep -x caffeinate > /dev/null; then
   caffeinate -di &
 fi
 

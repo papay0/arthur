@@ -263,15 +263,28 @@ This satisfies the Read requirement. Then use the Write tool to overwrite `/User
 
 ## Step 3: Skills
 
+First, detect the platform:
+```bash
+uname
+```
+- `Darwin` = macOS → show all options including Apple-specific ones
+- anything else (e.g. `Linux`) → skip Apple Notes, Apple Reminders, iMessage
+
 Use `AskUserQuestion` with **multiSelect: true**.
 
 **Question:** "Which tools do you want Arthur to use?"
 **Header:** "Skills"
 
-Options:
+**On macOS**, show all options:
 - **Apple Notes** — "Read and search your Apple Notes"
 - **Apple Reminders** — "View and manage Reminders.app"
 - **iMessage** — "Read and send iMessages"
+- **Google Calendar** — "View and create calendar events"
+- **Gmail** — "Search, read, and send emails"
+- **Web Browsing** — "Browse the web using your real Chrome browser with your logins"
+- **Scheduling / Reminders** — "Timed reminders that fire back into this conversation"
+
+**On Linux**, omit Apple-specific options:
 - **Google Calendar** — "View and create calendar events"
 - **Gmail** — "Search, read, and send emails"
 - **Web Browsing** — "Browse the web using your real Chrome browser with your logins"
@@ -283,14 +296,14 @@ Options:
 
 Run setup for each selected skill. Tell the user what you're doing before you do it.
 
-### Apple Notes
+### Apple Notes *(macOS only)*
 No install needed — uses built-in macOS AppleScript. Verify it works:
 ```bash
 osascript -e 'tell application "Notes" to get count of every note'
 ```
 If it returns a number, done. If it fails with a permissions error, tell the user to grant Automation access to their terminal in System Settings > Privacy & Security > Automation.
 
-### Apple Reminders
+### Apple Reminders *(macOS only)*
 Install remindctl and request authorization:
 ```bash
 brew install steipete/tap/remindctl
@@ -298,7 +311,7 @@ remindctl authorize
 ```
 If `remindctl` is already installed, skip the install. If authorization fails, tell the user to grant Reminders access when the system prompt appears.
 
-### iMessage
+### iMessage *(macOS only)*
 Install imsg:
 ```bash
 brew install steipete/tap/imsg
