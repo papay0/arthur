@@ -1,5 +1,7 @@
 # Apple Reminders
 
+> **Scope:** Use this skill only when the user explicitly asks to manage their Reminders.app (view, edit, delete, list). For "remind me at X to do Y" requests — use the **scheduling skill** (local queue + cron) instead so the reminder fires back into this conversation.
+
 Manage Apple Reminders via the `remindctl` CLI.
 
 ## Setup
@@ -16,25 +18,29 @@ remindctl show today              # Today's reminders
 remindctl show tomorrow           # Tomorrow
 remindctl show week               # This week
 remindctl show overdue            # Past due
-remindctl show upcoming           # Upcoming
+remindctl show upcoming           # Upcoming (includes overdue + future)
 remindctl show all                # Everything
 remindctl show completed          # Completed
 remindctl show 2026-01-04         # Specific date
-remindctl show --list Work        # Specific list
-remindctl show today --json       # JSON output
+remindctl show -l Work            # Filter by list (-l is short for --list)
+remindctl show today -j           # JSON output (-j is short for --json)
 remindctl show today --plain      # TSV output
-remindctl show today --quiet      # Counts only
+remindctl show today -q           # Counts only (-q is short for --quiet)
+remindctl show today --no-input   # Non-interactive (good for scripting)
 ```
 
 ## Manage Lists
 
 ```bash
-remindctl list                        # List all lists
-remindctl list Work                   # Show specific list
+remindctl list                        # List all lists with counts
+remindctl list Work                   # Show ALL reminders in list (including completed!)
 remindctl list Projects --create      # Create list
-remindctl list Work --delete --force  # Delete list
+remindctl list Work --delete -f       # Delete list (-f skips confirmation)
 remindctl list Work --rename Office   # Rename list
 ```
+
+> **Note:** `remindctl list Work` shows ALL reminders (including old completed ones).
+> Use `remindctl show -l Work` to see only upcoming/active reminders in a list.
 
 ## Create Reminders
 
@@ -69,8 +75,8 @@ remindctl complete 1 2 3           # Complete multiple
 ## Delete Reminders
 
 ```bash
-remindctl delete 1 --force         # Delete by index
-remindctl delete 1 2 3 --force     # Delete multiple
+remindctl delete 1 -f              # Delete by index (-f skips confirmation)
+remindctl delete 1 2 3 -f         # Delete multiple
 ```
 
 ## Date Formats

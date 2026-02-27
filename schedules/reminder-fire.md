@@ -1,0 +1,1 @@
+⏰ Reminder — check ~/arthur/reminders/queue.jsonl for any reminders due now and deliver them. Read the file, find entries where `scheduled_at` ≤ current time and `delivered` is false, send a brief friendly reminder message for each, then mark them delivered by rewriting the file.

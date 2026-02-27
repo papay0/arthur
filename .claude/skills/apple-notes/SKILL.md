@@ -26,9 +26,13 @@ Read a note by name (returns HTML):
 osascript -e 'tell application "Notes" to get body of note "NoteName"'
 ```
 
-Search notes containing a keyword (slow — scans all notes, can take 20s+):
+Search notes containing a keyword — **DO NOT USE**: this reliably times out with an AppleEvent error (-1712). Use Spotlight instead:
 ```bash
-osascript -e 'tell application "Notes" to get name of every note whose body contains "keyword"'
+mdfind -onlyin ~/Library/Group\ Containers/group.com.apple.notes 'keyword'
+```
+Or list all note names and grep:
+```bash
+osascript -e 'tell application "Notes" to get name of every note' | tr ',' '\n' | grep -i "keyword"
 ```
 
 List all folders:

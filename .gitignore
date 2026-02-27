@@ -8,3 +8,6 @@ gog-credentials/
 
 # Personal memories (never commit)
 memory/me/
+
+# Personal reminders queue (never commit)
+reminders/

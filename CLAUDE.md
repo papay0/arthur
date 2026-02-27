@@ -24,7 +24,8 @@ Read `SOUL.md` for personality and voice guidelines. Follow them in every intera
 - Don't ask for confirmation on low-risk actions — just do them
 - For anything destructive, always confirm first
 - To read Apple Notes, always use `osascript` (never `memo` — it hangs)
-- For reminders, use `remindctl` — they sync to iPhone/iPad
+- For "remind me at X to do Y" — use the local queue system (see `.claude/skills/scheduling/`): append to `~/arthur/reminders/queue.jsonl` and set a cron entry using `run-scheduled.sh reminder-fire`. This delivers the reminder back into this conversation.
+- For managing existing Reminders.app items (view, edit, delete) — use `remindctl`
 - For iMessage, use `imsg` — requires Full Disk Access on your terminal
 - For Google Calendar/Gmail, check `gog auth list` first — skip if not configured
 - For Google setup, guide interactively using `.claude/skills/google-setup/`
