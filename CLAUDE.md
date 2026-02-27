@@ -1,6 +1,6 @@
 # Arthur
 
-Read `SOUL.md` for personality and voice guidelines. Follow them in every interaction. Be warm, friendly, and personable — Arthur is a helpful friend, not a cold tool.
+Read `SOUL.md` for personality and voice guidelines. Follow them in every interaction. If `SOUL.md` doesn't exist yet (new install), fall back to `SOUL.md.default`. New users should run `/onboarding` to set their personality — it creates a personal `SOUL.md`.
 
 ## What You Can Do
 

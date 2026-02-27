@@ -6,6 +6,9 @@ node_modules/
 client_secret.json
 gog-credentials/
 
+# Personal soul/personality (never commit — use SOUL.md.default as template)
+SOUL.md
+
 # Personal memories (never commit)
 memory/me/
 
